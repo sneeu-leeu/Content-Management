@@ -22,26 +22,47 @@ const Folder = () => {
             .catch(() => navigate("/"));
     }, [params.id, navigate]);
 
-    // Render sub-folders
-    const renderSubFolders = () => {
-        return folderData.sub_folders.map((subFolder) => (
-            <li key={subFolder.id}>
-                <Link to={`/folder/${subFolder.id}`}>{subFolder.title}</Link>
-            </li>
-        ));
+    
+    const SubFolders = () => {
+        return (
+            <ul className="list-group">
+                {folderData.sub_folders.map((subFolder) => (
+                    <li key={subFolder.id} className="list-group-item d-flex flex-row justify-content-between align-items-center my-2 border border-dark">
+                        <Link to={`/folder/${subFolder.id}`} className="btn btn-link">
+                            {subFolder.title}
+                        </Link>
+                        <div className="text-muted">
+                            {/* Assuming you have a created_at or similar date property for sub folders */}
+                            <span>{new Date(subFolder.created_at).toLocaleDateString()}</span>
+                        </div>
+                    </li>
+                ))}
+            </ul>
+        );
     };
 
-    console.log('Parent ID being sent:', parentId);
+    const noFolders = (
+        <div className="vw-100 vh-50 d-flex align-items-center justify-content-center">
+          <h4>
+            No projects yet. <button onClick={() => setShowModal(true)}>New Folder</button>
+          </h4>
+        </div>
+      );
+
 
 
     return (
         <>
-            <div>
-                <h2>Folder: {folderData.folder.title}</h2>
-                <ul>{renderSubFolders()}</ul>
-            </div>
-            <button onClick={() => setShowModal(true)}>New Folder</button>
-            <NewFolder show={showModal} handleClose={() => setShowModal(false)} parentId={parentId} /> 
+            <main className="container">
+                <div>
+                    <h2>Folder: {folderData.folder.title}</h2>
+                </div>
+                <div className="row">
+                    <ul>{SubFolders()}</ul>
+                </div>
+                <button onClick={() => setShowModal(true)}>New Folder</button>
+                <NewFolder show={showModal} handleClose={() => setShowModal(false)} parentId={parentId} /> 
+            </main>
         </>
     );
 };
