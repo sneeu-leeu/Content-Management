@@ -1,9 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import NewFolder from './NewFolder';
+
 
 const Folders = () => {
     const navigate = useNavigate();
     const [folders, setFolders] = useState([]);
+    const [showModal, setShowModal] = useState(false);
+    const parentId = null; 
 
     useEffect(() => {
         const url = "/api/v1/folders/index";
@@ -15,7 +19,6 @@ const Folders = () => {
             throw new Error("Network response was not ok.");
           })
           .then((res) => {
-              // Filter out folders that have a parent_id
               const topLevelFolders = res.filter(folder => folder.parent_id === null);
               setFolders(topLevelFolders);
           })
@@ -52,12 +55,12 @@ const Folders = () => {
                     </div>
                 
                     <div className="mt-3">
-                        <Link to="/" className="btn custom-button">
-                            New Folder
-                        </Link>
+                        <button onClick={() => setShowModal(true)}>New Folder</button>
                     </div>
                 </main>
             </div>
+            
+            <NewFolder show={showModal} handleClose={() => setShowModal(false)} parentId={parentId} /> 
         </>
     );
 };

@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
+import NewFolder from './NewFolder';
 
 const Folder = () => {
     const params = useParams();
     const navigate = useNavigate();
-    // Adjusted to better reflect the expected data structure
+    const [showModal, setShowModal] = useState(false);
+    const parentId = params.id; 
     const [folderData, setFolderData] = useState({ folder: { title: '' }, sub_folders: [] });
 
     useEffect(() => {
-        // Updated to match your Rails routes
         const url = `/api/v1/show/${params.id}`;
         fetch(url)
             .then((response) => {
@@ -30,11 +31,18 @@ const Folder = () => {
         ));
     };
 
+    console.log('Parent ID being sent:', parentId);
+
+
     return (
-        <div>
-            <h2>Folder: {folderData.folder.title}</h2>
-            <ul>{renderSubFolders()}</ul>
-        </div>
+        <>
+            <div>
+                <h2>Folder: {folderData.folder.title}</h2>
+                <ul>{renderSubFolders()}</ul>
+            </div>
+            <button onClick={() => setShowModal(true)}>New Folder</button>
+            <NewFolder show={showModal} handleClose={() => setShowModal(false)} parentId={parentId} /> 
+        </>
     );
 };
 
