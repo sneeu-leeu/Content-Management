@@ -8,7 +8,7 @@ const NewFolder = ({ show, handleClose, parentId }) => {
 
     const csrfToken = document.querySelector("[name='csrf-token']").content;
 
-    fetch('/api/v1/folders/create', {
+    fetch('/api/v1/folders', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

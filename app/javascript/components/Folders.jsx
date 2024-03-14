@@ -10,7 +10,7 @@ const Folders = () => {
   const parentId = null;
 
   useEffect(() => {
-    const url = "/api/v1/folders/index";
+    const url = "/api/v1/folders";
     fetch(url)
       .then((res) => {
         if (res.ok) {

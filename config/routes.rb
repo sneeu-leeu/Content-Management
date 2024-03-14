@@ -1,10 +1,13 @@
 Rails.application.routes.draw do
   namespace :api do
     namespace :v1 do
-      get 'folders/index'
-      post 'folders/create'
-      get '/show/:id', to: 'folders#show'
-      delete '/destroy/:id', to: 'folders#destroy'
+      # get 'folders/index'
+      # post 'folders/create'
+      # get '/show/:id', to: 'folders#show'
+      # delete '/destroy/:id', to: 'folders#destroy'
+      resources :folders, only: [:index, :create, :show, :destroy] do
+        resources :uploads, only: [:create, :show, :destroy]
+      end
     end
   end
 

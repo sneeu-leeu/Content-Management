@@ -1,16 +1,18 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import NewFolder from './NewFolder';
+import NewFolder from "./NewFolder";
+import UploadModal from './UploadModal';
 
 const Folder = () => {
     const params = useParams();
     const navigate = useNavigate();
     const [showModal, setShowModal] = useState(false);
+    const [showUploadModal, setShowUploadModal] = useState(false);
     const parentId = params.id; 
     const [folderData, setFolderData] = useState({ folder: { title: '' }, sub_folders: [] });
 
     useEffect(() => {
-        const url = `/api/v1/show/${params.id}`;
+        const url = `/api/v1/folders/${params.id}`;
         fetch(url)
             .then((response) => {
                 if (response.ok) {
@@ -41,13 +43,13 @@ const Folder = () => {
         );
     };
 
-    const noFolders = (
-        <div className="vw-100 vh-50 d-flex align-items-center justify-content-center">
-          <h4>
-            No projects yet. <button onClick={() => setShowModal(true)}>New Folder</button>
-          </h4>
-        </div>
-      );
+    // const noFolders = (
+    //     <div className="vw-100 vh-50 d-flex align-items-center justify-content-center">
+    //       <h4>
+    //         No projects yet. <button onClick={() => setShowModal(true)}>New Folder</button>
+    //       </h4>
+    //     </div>
+    //   );
 
 
 
@@ -61,7 +63,9 @@ const Folder = () => {
                     <ul>{SubFolders()}</ul>
                 </div>
                 <button onClick={() => setShowModal(true)}>New Folder</button>
-                <NewFolder show={showModal} handleClose={() => setShowModal(false)} parentId={parentId} /> 
+                <button onClick={() => setShowUploadModal(true)} className="btn btn-secondary ms-2">Add Upload</button>
+                <NewFolder show={showModal} handleClose={() => setShowModal(false)} parentId={parentId} />
+                <UploadModal show={showUploadModal} handleClose={() => setShowUploadModal(false)} uploadableId={parentId} />
             </main>
         </>
     );
