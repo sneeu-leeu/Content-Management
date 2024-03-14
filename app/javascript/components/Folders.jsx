@@ -55,7 +55,7 @@ const Folders = () => {
           </div>
 
           <div className="mt-3">
-            <button onClick={() => setShowModal(true)}>New Folder</button>
+            <button onClick={() => setShowModal(true)}  className="btn custom-button ms-2">New Folder</button>
           </div>
         </main>
       </div>

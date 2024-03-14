@@ -1,5 +1,11 @@
 class Api::V1::UploadsController < ApplicationController
 
+  def index
+    folder = Folder.find(params[:folder_id])
+    uploads = folder.uploads
+    render json: uploads
+  end
+
   def create
     upload = Upload.new(upload_params)
     upload.file.attach(params[:upload][:file]) if params[:upload][:file].present?

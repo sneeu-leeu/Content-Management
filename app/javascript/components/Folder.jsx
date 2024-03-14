@@ -10,18 +10,27 @@ const Folder = () => {
     const [showUploadModal, setShowUploadModal] = useState(false);
     const parentId = params.id; 
     const [folderData, setFolderData] = useState({ folder: { title: '' }, sub_folders: [] });
+    const [uploads, setUploads] = useState([]);
 
     useEffect(() => {
-        const url = `/api/v1/folders/${params.id}`;
-        fetch(url)
-            .then((response) => {
-                if (response.ok) {
-                    return response.json();
-                }
-                throw new Error("Network response was not ok.");
-            })
-            .then((data) => setFolderData(data))
-            .catch(() => navigate("/"));
+        const fetchFolderDetails = async () => {
+            try {
+                const folderResponse = await fetch(`/api/v1/folders/${params.id}`);
+                if (!folderResponse.ok) throw new Error('Failed to fetch folder data.');
+                const folderData = await folderResponse.json();
+                setFolderData(folderData);
+    
+                const uploadsResponse = await fetch(`/api/v1/folders/${params.id}/uploads`);
+                if (!uploadsResponse.ok) throw new Error('Failed to fetch uploads data.');
+                const uploadsData = await uploadsResponse.json();
+                setUploads(uploadsData);
+            } catch (error) {
+                console.error("Error:", error);
+                navigate("/");
+            }
+        };
+    
+        fetchFolderDetails();
     }, [params.id, navigate]);
 
     
@@ -34,13 +43,24 @@ const Folder = () => {
                             {subFolder.title}
                         </Link>
                         <div className="text-muted">
-                            {/* Assuming you have a created_at or similar date property for sub folders */}
                             <span>{new Date(subFolder.created_at).toLocaleDateString()}</span>
                         </div>
                     </li>
                 ))}
             </ul>
         );
+    };
+
+    const UploadsList = () => {
+        return uploads.map((upload) => (
+            <li key={upload.id} className="list-group-item d-flex justify-content-between align-items-center my-2 border border-dark">
+                <span>{upload.title}</span>
+                <div>
+                    <span>{upload.file_size}</span> 
+                    <span className="ms-2 text-muted">{new Date(upload.created_at).toLocaleDateString()}</span>
+                </div>
+            </li>
+        ));
     };
 
     // const noFolders = (
@@ -60,10 +80,13 @@ const Folder = () => {
                     <h2>Folder: {folderData.folder.title}</h2>
                 </div>
                 <div className="row">
-                    <ul>{SubFolders()}</ul>
+                    <ul className="list-group">
+                        {SubFolders()}
+                        {UploadsList()}
+                    </ul>
                 </div>
-                <button onClick={() => setShowModal(true)}>New Folder</button>
-                <button onClick={() => setShowUploadModal(true)} className="btn btn-secondary ms-2">Add Upload</button>
+                <button onClick={() => setShowModal(true)} className="btn custom-button">New Folder</button>
+                <button onClick={() => setShowUploadModal(true)} className="btn custom-button ms-2">Add Upload</button>
                 <NewFolder show={showModal} handleClose={() => setShowModal(false)} parentId={parentId} />
                 <UploadModal show={showUploadModal} handleClose={() => setShowUploadModal(false)} uploadableId={parentId} />
             </main>

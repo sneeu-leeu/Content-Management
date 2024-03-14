@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 
-const UploadModal = ({ show, handleClose }) => {
+const UploadModal = ({ show, handleClose, uploadableId }) => {
     const [title, setTitle] = useState('');
     const [file, setFile] = useState(null);
 
     const handleSubmit = (e) => {
         console.log('Submit button clicked');
         e.preventDefault();
+
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
         const formData = new FormData();
         formData.append('upload[title]', title);
@@ -16,6 +18,10 @@ const UploadModal = ({ show, handleClose }) => {
           fetch(`/api/v1/folders/${uploadableId}/uploads`, {
             method: 'POST',
             body: formData,
+            headers: {
+                'X-CSRF-Token': csrfToken,
+            },
+            credentials: 'include', 
         })
         .then(response => {
             if (!response.ok) throw new Error('Network response was not ok.');
@@ -23,7 +29,7 @@ const UploadModal = ({ show, handleClose }) => {
         })
         .then(() => {
             handleClose();
-            window.location.reload(); // REMEMBER TO CHANGE THIS
+            // window.location.reload(); // REMEMBER TO CHANGE THIS
         })
         .catch(error => {
             console.error('Error:', error);

@@ -6,7 +6,7 @@ Rails.application.routes.draw do
       # get '/show/:id', to: 'folders#show'
       # delete '/destroy/:id', to: 'folders#destroy'
       resources :folders, only: [:index, :create, :show, :destroy] do
-        resources :uploads, only: [:create, :show, :destroy]
+        resources :uploads, only: [:index, :create, :show, :destroy]
       end
     end
   end
