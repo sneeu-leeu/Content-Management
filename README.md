@@ -1,24 +1,62 @@
-# README
+# Delivery
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+## Built With
 
-Things you may want to cover:
+- Ruby on Rails
+- PostgreSQL
+- React
+## Getting Started
 
-* Ruby version
+To get a local copy up and running follow these simple example steps.
 
-* System dependencies
+### Prerequisites
 
-* Configuration
+- [Ruby](https://www.ruby-lang.org/en/)
+- [Rails](https://gorails.com/)
 
-* Database creation
+### local Set Up
 
-* Database initialization
+#### Installation
 
-* How to run the test suite
+- [Ruby/Rails](https://www.digitalocean.com/community/tutorials/how-to-install-ruby-on-rails-with-rbenv-on-ubuntu-20-04)
+- [Node](https://nodejs.org/en/)
+- [NPM](https://www.npmjs.com/)
+- [Yarn](https://classic.yarnpkg.com/en/docs/install#debian-stable)
 
-* Services (job queues, cache servers, search engines, etc.)
+#### Run Locally
 
-* Deployment instructions
+- Clone or download this repo on your machine
+  
+- Enter project directory
 
-* ...
+### Install
+
+```sh
+bundle install
+```
+
+```sh
+yarn install
+```
+
+### Database
+
+```sh
+# Create the database
+rails db:create
+
+## Apply migration
+rails db:migrate
+
+# seed the db
+rails db:seed
+
+# Load the schema
+rails db:schema:load
+```
+
+### Run
+
+```sh
+bin/dev
+```
