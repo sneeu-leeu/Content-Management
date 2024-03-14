@@ -14,6 +14,9 @@ const UploadModal = ({ show, handleClose, uploadableId }) => {
         formData.append('upload[title]', title);
         formData.append('upload[uploadable_type]', 'Folder');
         formData.append('upload[uploadable_id]', uploadableId);
+        if (file) {
+            formData.append('upload[file]', file);
+        }
 
           fetch(`/api/v1/folders/${uploadableId}/uploads`, {
             method: 'POST',

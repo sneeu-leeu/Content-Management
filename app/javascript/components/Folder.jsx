@@ -50,7 +50,11 @@ const Folder = () => {
 
     const UploadsList = uploads.map((upload, index) => (
         <div key={index} className="d-flex flex-row justify-content-around align-items-center list-group-item border border-dark my-2">
-            <Link to={`/uploads/${upload.id}`} className="btn">
+            <Link 
+                to={`/uploads/${upload.id}`}
+                state={{ folderId: params.id }}
+                className="btn"
+            >
                 {upload.title}
             </Link>
             <div className="text-muted">

@@ -7,8 +7,10 @@ class Api::V1::UploadsController < ApplicationController
   end
 
   def create
+    Rails.logger.debug "Received params: #{params.inspect}"
     upload = Upload.new(upload_params)
     upload.file.attach(params[:upload][:file]) if params[:upload][:file].present?
+
     
     if upload.save
       render json: upload, status: :created
@@ -19,12 +21,18 @@ class Api::V1::UploadsController < ApplicationController
 
   def show
     upload = Upload.find(params[:id])
-    render json: upload.as_json.merge({
-      file: {
-        url: rails_blob_url(upload.file, only_path: true),
-        contentType: upload.file.blob.content_type
+    if upload.file.attached?
+      render json: {
+        id: upload.id,
+        title: upload.title,
+        file: {
+          url: rails_blob_url(upload.file, only_path: true),
+          content_type: upload.file.blob.content_type
+        }
       }
-    })
+    else
+      render json: { error: "No file attached" }, status: :unprocessable_entity
+    end
   end
 
   def destroy
