@@ -33,35 +33,33 @@ const Folder = () => {
         fetchFolderDetails();
     }, [params.id, navigate]);
 
-    
-    const SubFolders = () => {
-        return (
-            <ul className="list-group">
-                {folderData.sub_folders.map((subFolder) => (
-                    <li key={subFolder.id} className="list-group-item d-flex flex-row justify-content-between align-items-center my-2 border border-dark">
-                        <Link to={`/folder/${subFolder.id}`} className="btn btn-link">
-                            {subFolder.title}
-                        </Link>
-                        <div className="text-muted">
-                            <span>{new Date(subFolder.created_at).toLocaleDateString()}</span>
-                        </div>
-                    </li>
-                ))}
-            </ul>
-        );
-    };
 
-    const UploadsList = () => {
-        return uploads.map((upload) => (
-            <li key={upload.id} className="list-group-item d-flex justify-content-between align-items-center my-2 border border-dark">
-                <span>{upload.title}</span>
-                <div>
-                    <span>{upload.file_size}</span> 
-                    <span className="ms-2 text-muted">{new Date(upload.created_at).toLocaleDateString()}</span>
-                </div>
-            </li>
-        ));
-    };
+
+    const subFolders = folderData.sub_folders.map((subFolder, index) => (
+        <div key={index} className="d-flex flex-row justify-content-around align-items-center list-group-item border border-dark my-2">
+            <Link to={`/folder/${subFolder.id}`} className="btn">
+                {subFolder.title}
+            </Link>
+            <div className="text-muted">
+                <span className="">{new Date(subFolder.created_at).toLocaleDateString()}</span>
+                {/* <span className="badge bg-secondary ms-2">{folder.size} items</span> */}
+            </div>
+        </div>
+    ));
+
+
+    const UploadsList = uploads.map((upload, index) => (
+        <div key={index} className="d-flex flex-row justify-content-around align-items-center list-group-item border border-dark my-2">
+            <Link to={`/uploads/${upload.id}`} className="btn">
+                {upload.title}
+            </Link>
+            <div className="text-muted">
+                <span className="">{new Date(upload.created_at).toLocaleDateString()}</span>
+                {/* <span className="badge bg-secondary ms-2">{upload.file_size} items</span> */}
+            </div>
+        </div>
+    ));
+
 
     // const noFolders = (
     //     <div className="vw-100 vh-50 d-flex align-items-center justify-content-center">
@@ -80,10 +78,8 @@ const Folder = () => {
                     <h2>Folder: {folderData.folder.title}</h2>
                 </div>
                 <div className="row">
-                    <ul className="list-group">
-                        {SubFolders()}
-                        {UploadsList()}
-                    </ul>
+                    {subFolders}
+                    {UploadsList}
                 </div>
                 <button onClick={() => setShowModal(true)} className="btn custom-button">New Folder</button>
                 <button onClick={() => setShowUploadModal(true)} className="btn custom-button ms-2">Add Upload</button>

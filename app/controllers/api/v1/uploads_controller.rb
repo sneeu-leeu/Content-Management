@@ -19,7 +19,12 @@ class Api::V1::UploadsController < ApplicationController
 
   def show
     upload = Upload.find(params[:id])
-    render json: upload
+    render json: upload.as_json.merge({
+      file: {
+        url: rails_blob_url(upload.file, only_path: true),
+        contentType: upload.file.blob.content_type
+      }
+    })
   end
 
   def destroy
