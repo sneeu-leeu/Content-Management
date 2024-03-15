@@ -4,6 +4,9 @@ Rails.application.routes.draw do
       resources :folders, only: [:index, :create, :show, :destroy] do
         resources :uploads, only: [:index, :create, :show, :destroy] do 
           resources :comments, only: [:index, :create, :update] do
+            member do
+              patch :soft_delete
+            end
             resources :replies, only: [:index, :create, :update]
           end
         end

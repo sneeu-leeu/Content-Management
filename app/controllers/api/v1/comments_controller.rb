@@ -3,7 +3,7 @@ class Api::V1::CommentsController < ApplicationController
   before_action :set_comment, only: [:update]
 
   def index
-    @comments = @upload.comments.includes(:replies).order(created_at: :desc)
+    @comments = @upload.comments.includes(:replies).order(created_at: :desc).where(upload_id: params[:upload_id], deleted: false)
     render json: @comments, include: [:replies]
   end
 
@@ -23,6 +23,12 @@ class Api::V1::CommentsController < ApplicationController
     else
       render json: @comment.errors, status: :unprocessable_entity
     end
+  end
+
+  def soft_delete
+    comment = Comment.find(params[:id])
+    comment.update(deleted: true)
+    head :no_content
   end
 
   private

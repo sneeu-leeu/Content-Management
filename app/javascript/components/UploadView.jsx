@@ -5,18 +5,20 @@ import useCommentSubmission from '../hooks/useCommentSubmission';
 import useFetchComments from '../hooks/useFetchComments';
 import useReplySubmission from '../hooks/useReplySubmission';
 import useCommentEdit from '../hooks/useCommentEdit';
+import useSoftDeleteComment from '../hooks/useSoftDeleteComment'; 
 
 const UploadView = () => {
   const { uploadId } = useParams();
   const location = useLocation();
   const folderId = location.state?.folderId;
 
+  const softDeleteComment = useSoftDeleteComment(); 
   const { uploadDetails, loading: uploadLoading, error: uploadError } = useFetchUploadDetails(uploadId, folderId);
   const { commentBody, setCommentBody, handleCommentSubmit } = useCommentSubmission(folderId, uploadId);
   const { comments, loading: commentsLoading, error: commentsError } = useFetchComments(folderId, uploadId);
   const { replyBody, setReplyBody, handleReplySubmit, replyFormVisible, toggleReplyForm } = useReplySubmission(folderId, uploadId);
   const { editCommentId, editCommentBody, handleEditChange, startEdit, cancelEdit, submitEdit } = useCommentEdit(uploadId, folderId);
-  
+
   if (uploadLoading || commentsLoading) return <div>Loading...</div>;
   if (uploadError || commentsError) return <div>Error: {uploadError || commentsError}</div>;
   if (!uploadDetails || !uploadDetails.file || !uploadDetails.file.url) return <div>File details are missing.</div>;
@@ -72,8 +74,9 @@ const UploadView = () => {
       return (
         <>
           <p>{comment.body}</p>
-          <button onClick={() => startEdit(comment.id, comment.body)} className="btn btn-link">Edit</button> {/* Corrected to startEdit */}
+          <button onClick={() => startEdit(comment.id, comment.body)} className="btn btn-link">Edit</button>
           <button onClick={() => toggleReplyForm(comment.id)} className="btn btn-link">Reply</button>
+          <button onClick={() => softDeleteComment(folderId, uploadId, comment.id)} className="btn btn-link">Delete</button>
           {replyFormVisible[comment.id] && renderReply(comment.id)}
           {comment.replies && comment.replies.map(renderReply)}
         </>
