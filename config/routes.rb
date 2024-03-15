@@ -1,23 +1,22 @@
 Rails.application.routes.draw do
+  get 'replies/index'
+  get 'replies/create'
+  get 'replies/update'
   namespace :api do
     namespace :v1 do
+      get 'replies/index'
+      get 'replies/create'
+      get 'replies/update'
       resources :folders, only: [:index, :create, :show, :destroy] do
         resources :uploads, only: [:index, :create, :show, :destroy] do 
-          resources :comments, only: [:create, :index]
+          resources :comments, only: [:index, :create, :update] do
+            resources :replies, only: [:index, :creat, :update]
+          end
         end
-      end
-      resources :comments, only: [] do
-        resources :comments, only: [:create, :index]
       end
     end
   end
 
-  # Defines the root path route ("/")
   root "home#index"
-
-  # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
-
-  # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
-  # Can be used by load balancers and uptime monitors to verify that the app is live.
   get "up" => "rails/health#show", as: :rails_health_check
 end

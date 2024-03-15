@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_03_14_163641) do
+ActiveRecord::Schema[7.1].define(version: 2024_03_15_123052) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -44,15 +44,14 @@ ActiveRecord::Schema[7.1].define(version: 2024_03_14_163641) do
 
   create_table "comments", force: :cascade do |t|
     t.string "body"
-    t.string "commentable_type", null: false
-    t.bigint "commentable_id", null: false
     t.bigint "parent_id"
     t.boolean "hidden"
     t.boolean "done"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["commentable_type", "commentable_id"], name: "index_comments_on_commentable"
+    t.bigint "upload_id"
     t.index ["parent_id"], name: "index_comments_on_parent_id"
+    t.index ["upload_id"], name: "index_comments_on_upload_id"
   end
 
   create_table "folders", force: :cascade do |t|
@@ -68,6 +67,14 @@ ActiveRecord::Schema[7.1].define(version: 2024_03_14_163641) do
     t.index ["parent_id"], name: "index_folders_on_parent_id"
   end
 
+  create_table "replies", force: :cascade do |t|
+    t.text "body"
+    t.bigint "comment_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["comment_id"], name: "index_replies_on_comment_id"
+  end
+
   create_table "uploads", force: :cascade do |t|
     t.string "title"
     t.datetime "created_at", null: false
@@ -80,5 +87,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_03_14_163641) do
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "comments", "comments", column: "parent_id"
+  add_foreign_key "comments", "uploads"
   add_foreign_key "folders", "folders", column: "parent_id"
+  add_foreign_key "replies", "comments"
 end
