@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { useParams, useLocation } from 'react-router-dom';
 import useFetchUploadDetails from '../hooks/useFetchUploadDetails';
 import useCommentSubmission from '../hooks/useCommentSubmission';
@@ -12,12 +12,23 @@ const UploadView = () => {
   const location = useLocation();
   const folderId = location.state?.folderId;
 
+  const videoRef = useRef(null);
+
   const softDeleteComment = useSoftDeleteComment(); 
   const { uploadDetails, loading: uploadLoading, error: uploadError } = useFetchUploadDetails(uploadId, folderId);
   const { commentBody, setCommentBody, handleCommentSubmit } = useCommentSubmission(folderId, uploadId);
   const { comments, loading: commentsLoading, error: commentsError } = useFetchComments(folderId, uploadId);
   const { replyBody, setReplyBody, handleReplySubmit, replyFormVisible, toggleReplyForm } = useReplySubmission(folderId, uploadId);
   const { editCommentId, editCommentBody, handleEditChange, startEdit, cancelEdit, submitEdit } = useCommentEdit(uploadId, folderId);
+
+  const seekVideo = (timeInSeconds) => {
+    if (videoRef.current) {
+      videoRef.current.currentTime = timeInSeconds;
+      if (videoRef.current.paused) {
+        videoRef.current.play();
+      }
+    }
+  };
 
   if (uploadLoading || commentsLoading) return <div>Loading...</div>;
   if (uploadError || commentsError) return <div>Error: {uploadError || commentsError}</div>;
@@ -27,7 +38,7 @@ const UploadView = () => {
   const renderMedia = () => {
     const isVideo = uploadDetails.file.content_type && uploadDetails.file.content_type.startsWith('video');
     return isVideo ? (
-      <video controls src={uploadDetails.file.url} className="img-fluid mb-3" />
+      <video ref={videoRef} controls src={uploadDetails.file.url} className="img-fluid mb-3" />
     ) : (
       <img src={uploadDetails.file.url} alt={uploadDetails.title || 'Uploaded file'} className="img-fluid mb-3" />
     );
@@ -47,7 +58,7 @@ const UploadView = () => {
             required
           ></textarea>
         </div>
-        <button type="submit" className="btn btn-primary mt-2">Submit</button>
+        <button type="submit" className="btn custom-button mt-2">Submit</button>
       </form>
     </div>
   );
@@ -71,9 +82,26 @@ const UploadView = () => {
     if (editCommentId === comment.id) {
       return renderEditCommentForm(comment);
     } else {
+      const timestampRegex = /(\d{1,2}:\d{2})/g;
+      const commentContent = comment.body.split(timestampRegex).map((part, index) => {
+        if (part.match(timestampRegex)) {
+          const [minutes, seconds] = part.split(":").map(Number);
+          const timeInSeconds = minutes * 60 + seconds;
+          return (
+            <a href="#" key={index} onClick={(e) => {
+              e.preventDefault();
+              seekVideo(timeInSeconds);
+            }} style={{ textDecoration: 'underline', cursor: 'pointer' }}>
+              {part}
+            </a>
+          );
+        }
+        return part;
+      });
+  
       return (
         <>
-          <p>{comment.body}</p>
+          <div>{commentContent}</div>
           <button onClick={() => startEdit(comment.id, comment.body)} className="btn btn-link">Edit</button>
           <button onClick={() => toggleReplyForm(comment.id)} className="btn btn-link">Reply</button>
           <button onClick={() => softDeleteComment(folderId, uploadId, comment.id)} className="btn btn-link">Delete</button>
@@ -83,7 +111,6 @@ const UploadView = () => {
       );
     }
   };
-  
   const renderEditCommentForm = (comment) => (
     <form onSubmit={(e) => submitEdit(e, comment.id)}>
       <textarea

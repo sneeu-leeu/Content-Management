@@ -62,7 +62,7 @@ const UploadModal = ({ show, handleClose, uploadableId }) => {
                         </div>
                         <div className="modal-footer">
                             <button type="button" className="btn btn-secondary" onClick={handleClose}>Close</button>
-                            <button type="submit" className="btn btn-primary">Upload</button>
+                            <button type="submit" className="btn custom-button">Upload</button>
                         </div>
                     </form>
                 </div>
