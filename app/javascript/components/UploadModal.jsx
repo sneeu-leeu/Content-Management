@@ -1,85 +1,63 @@
-import React, { useCallback, useState } from 'react';
+import React, { useState } from 'react';
 import { useDropzone } from 'react-dropzone';
+import useUploads from '../hooks/useUploads';
 
 const UploadModal = ({ show, handleClose, uploadableId }) => {
-    const [title, setTitle] = useState('');
-    const [files, setFiles] = useState([]);
+  const [files, setFiles] = useState([]);
+  const { uploadFiles } = useUploads();
+  const onDrop = acceptedFiles => setFiles(prevFiles => [...prevFiles, ...acceptedFiles]);
+  const { getRootProps, getInputProps } = useDropzone({ onDrop });
 
-    const onDrop = useCallback(acceptedFiles => {
-        // Append the accepted files to the existing files array
-        setFiles(prevFiles => [...prevFiles, ...acceptedFiles]);
-    }, []);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    await uploadFiles(files, uploadableId);
+    handleClose();
+  };
 
-    const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
+  const modalHeader = (
+    <div className="modal-header">
+      <h5 className="modal-title">Upload File(s)</h5>
+    </div>
+  );
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+  const dropzone = (
+    <div {...getRootProps()} className="dropzone border rounded d-flex justify-content-center align-items-center p-3">
+      <input {...getInputProps()} />
+      <p>Drag 'n' drop files here, or click to select files</p>
+    </div>
+  );
 
-        files.forEach(file => {
-            const formData = new FormData();
-            formData.append('upload[title]', file.name);
-            formData.append('upload[uploadable_type]', 'Folder');
-            formData.append('upload[uploadable_id]', uploadableId);
-            formData.append('upload[file]', file);
+  const fileList = (
+    <ul className="list-unstyled mt-2">
+      {files.map((file, index) => (
+        <li key={index}>{file.name} - {file.size} bytes</li>
+      ))}
+    </ul>
+  );
 
-            fetch(`/api/v1/folders/${uploadableId}/uploads`, {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    'X-CSRF-Token': csrfToken,
-                },
-                credentials: 'include', 
-            })
-            .then(response => {
-                if (!response.ok) throw new Error('Network response was not ok.');
-                return response.json();
-            })
-            .then(() => {
-                handleClose();
-                // Consider updating the UI or state to reflect the new upload instead of reloading
-            })
-            .catch(error => {
-                console.error('Error:', error);
-            });
-        });
-    };
+  const modalFooter = (
+    <div className="modal-footer">
+      <button type="button" className="btn custom-button" onClick={handleClose}>Close</button>
+      <button type="submit" className="btn custom-button">Upload</button>
+    </div>
+  );
 
-    return (
-        <div className={`modal fade ${show ? 'show' : ''}`} style={{ display: show ? 'block' : 'none' }} tabIndex="-1" role="dialog">
-            <div className="modal-dialog" role="document">
-                <div className="modal-content">
-                    <div className="modal-header">
-                        <h5 className="modal-title">Upload File(s)</h5>
-                        <button type="button" className="close" data-dismiss="modal" aria-label="Close" onClick={handleClose}>
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <form onSubmit={handleSubmit}>
-                        <div className="modal-body">
-                            <div {...getRootProps()} className="dropzone">
-                                <input {...getInputProps()} />
-                                {
-                                    isDragActive ?
-                                    <p>Drop the files here ...</p> :
-                                    <p>Drag 'n' drop some files here, or click to select files</p>
-                                }
-                            </div>
-                            <ul>
-                                {files.map(file => (
-                                    <li key={file.path}>{file.path} - {file.size} bytes</li>
-                                ))}
-                            </ul>
-                        </div>
-                        <div className="modal-footer">
-                            <button type="button" className="btn btn-secondary" onClick={handleClose}>Close</button>
-                            <button type="submit" className="btn custom-button">Upload</button>
-                        </div>
-                    </form>
-                </div>
+  return (
+    <div className={`modal ${show ? 'show' : ''}`} style={{ display: show ? 'block' : 'none' }} tabIndex="-1" role="dialog">
+      <div className="modal-dialog">
+        <div className="modal-content">
+          {modalHeader}
+          <form onSubmit={handleSubmit}>
+            <div className="modal-body">
+              {dropzone}
+              {fileList}
             </div>
+            {modalFooter}
+          </form>
         </div>
-    );
+      </div>
+    </div>
+  );
 };
 
 export default UploadModal;
