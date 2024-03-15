@@ -7,11 +7,11 @@ class Api::V1::FoldersController < ApplicationController
     end
 
     def create
-        folder = Folder.create!(folder_params)
-        if folder
-            render json: folder
+        folder = Folder.new(folder_params)
+        if folder.save
+            render json: folder, status: :created
         else
-            render json: folder.errors
+            render json: folder.errors, status: :unprocessable_entity
         end
     end
 

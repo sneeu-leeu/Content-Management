@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_03_12_152836) do
+ActiveRecord::Schema[7.1].define(version: 2024_03_15_151959) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -42,6 +42,19 @@ ActiveRecord::Schema[7.1].define(version: 2024_03_12_152836) do
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
   end
 
+  create_table "comments", force: :cascade do |t|
+    t.string "body"
+    t.bigint "parent_id"
+    t.boolean "hidden"
+    t.boolean "done"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "upload_id"
+    t.boolean "deleted", default: false
+    t.index ["parent_id"], name: "index_comments_on_parent_id"
+    t.index ["upload_id"], name: "index_comments_on_upload_id"
+  end
+
   create_table "folders", force: :cascade do |t|
     t.string "title"
     t.text "description"
@@ -55,7 +68,27 @@ ActiveRecord::Schema[7.1].define(version: 2024_03_12_152836) do
     t.index ["parent_id"], name: "index_folders_on_parent_id"
   end
 
+  create_table "replies", force: :cascade do |t|
+    t.text "body"
+    t.bigint "comment_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["comment_id"], name: "index_replies_on_comment_id"
+  end
+
+  create_table "uploads", force: :cascade do |t|
+    t.string "title"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "uploadable_type"
+    t.bigint "uploadable_id"
+    t.index ["uploadable_type", "uploadable_id"], name: "index_uploads_on_uploadable"
+  end
+
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "comments", "comments", column: "parent_id"
+  add_foreign_key "comments", "uploads"
   add_foreign_key "folders", "folders", column: "parent_id"
+  add_foreign_key "replies", "comments"
 end
