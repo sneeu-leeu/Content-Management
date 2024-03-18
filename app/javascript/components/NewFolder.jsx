@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
 
-const NewFolder = ({ show, handleClose, parentId }) => {
+const NewFolder = ({ show, handleClose, parentId, onFolderAdded }) => {
   const [folderName, setFolderName] = useState('');
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
     const csrfToken = document.querySelector("[name='csrf-token']").content;
 
     fetch('/api/v1/folders', {
@@ -16,18 +15,19 @@ const NewFolder = ({ show, handleClose, parentId }) => {
       },
       body: JSON.stringify({ folder: { title: folderName, parent_id: parentId } }),
     })
-      .then((response) => {
-        if (response.ok) {
-          return response.json();
-        }
-        throw new Error('Network response was not ok.');
-      })
-      .then(() => {
-        handleClose();
-      })
-      .catch((error) => {
-        console.error('Error:', error);
-      });
+    .then(response => {
+      if (response.ok) {
+        return response.json();
+      }
+      throw new Error('Network response was not ok.');
+    })
+    .then(data => {
+      handleClose();
+      onFolderAdded(data);
+    })
+    .catch(error => {
+      console.error('Error:', error);
+    });
   };
 
   return (
@@ -36,6 +36,9 @@ const NewFolder = ({ show, handleClose, parentId }) => {
         <div className="modal-content">
           <div className="modal-header">
             <h5 className="modal-title">New Folder</h5>
+            <button type="button" className="close" data-dismiss="modal" aria-label="Close" onClick={handleClose}>
+              <span aria-hidden="true">&times;</span>
+            </button>
           </div>
           <form onSubmit={handleSubmit}>
             <div className="modal-body">
@@ -53,7 +56,7 @@ const NewFolder = ({ show, handleClose, parentId }) => {
             </div>
             <div className="modal-footer">
               <button type="button" className="btn btn-secondary" onClick={handleClose}>Close</button>
-              <button type="submit" className="btn custom-button">Create Folder</button>
+              <button type="submit" className="btn btn-primary">Create Folder</button>
             </div>
           </form>
         </div>

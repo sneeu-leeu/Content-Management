@@ -2,6 +2,11 @@ source "https://rubygems.org"
 
 ruby "3.3.0"
 
+# Auth
+gem 'omniauth'
+gem 'omniauth-azure-oauth2'
+gem 'devise'
+
 gem "active_model_serializers"
 
 # Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"

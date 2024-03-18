@@ -3,6 +3,7 @@ import { useCallback } from 'react';
 const useUploads = () => {
   const uploadFiles = useCallback(async (files, uploadableId) => {
     const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+    let newUploads = [];
 
     const uploadPromises = files.map(file => {
       const formData = new FormData();
@@ -16,15 +17,13 @@ const useUploads = () => {
         headers: { 'X-CSRF-Token': csrfToken },
         credentials: 'include',
         body: formData,
-      });
+      })
+      .then(response => response.json())
+      .then(data => newUploads.push(data));
     });
 
-    try {
-      await Promise.all(uploadPromises);
-      // TODO: Handle success (refresh list, close modal)
-    } catch (error) {
-      console.error('Error uploading files:', error);
-    }
+    await Promise.all(uploadPromises);
+    return newUploads;
   }, []);
 
   return { uploadFiles };

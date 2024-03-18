@@ -1,4 +1,6 @@
 Rails.application.routes.draw do
+  root "home#index"
+  # devise_for :users, controllers: { omniauth_callbacks: 'users/omniauth_callbacks' }
   namespace :api do
     namespace :v1 do
       resources :folders, only: [:index, :create, :show, :destroy] do
@@ -14,6 +16,6 @@ Rails.application.routes.draw do
     end
   end
 
-  root "home#index"
+  
   get "up" => "rails/health#show", as: :rails_health_check
 end

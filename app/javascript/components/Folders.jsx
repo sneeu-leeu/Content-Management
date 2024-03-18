@@ -2,14 +2,16 @@ import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import NewFolder from './NewFolder';
 
-
 const Folders = () => {
   const navigate = useNavigate();
   const [folders, setFolders] = useState([]);
   const [showModal, setShowModal] = useState(false);
-  const parentId = null;
 
   useEffect(() => {
+    fetchFolders();
+  }, []);
+
+  const fetchFolders = async () => {
     const url = "/api/v1/folders";
     fetch(url)
       .then((res) => {
@@ -23,44 +25,39 @@ const Folders = () => {
         setFolders(topLevelFolders);
       })
       .catch(() => navigate("/"));
-  }, [navigate]);
+  };
 
-  const allFolders = folders.map((folder, index) => (
-    <div key={index} className="d-flex flex-row justify-content-around align-items-center list-group-item border border-dark my-2">
-      <Link to={`/folder/${folder.id}`} className="btn">
-        {folder.title}
-      </Link>
-      <div className="text-muted">
-        <span className="">{new Date(folder.created_at).toLocaleDateString()}</span>
-        {/* <span className="badge bg-secondary ms-2">{folder.size} items</span> */}
-      </div>
-    </div>
-  ));
-
-
-  const noFolders = (
-    <div className="vw-100 vh-50 d-flex align-items-center justify-content-center">
-      <h4>
-        No projects yet. <NewFolder show={showModal} handleClose={() => setShowModal(false)} parentId={parentId} />
-      </h4>
-    </div>
-  );
+  const handleAddNewFolder = (newFolder) => {
+    setFolders(prevFolders => [...prevFolders, newFolder]);
+  };
 
   return (
     <>
       <div>
         <main className="container">
           <div className="row">
-            {folders.length > 0 ? allFolders : noFolders}
+            {folders.length > 0 ? folders.map((folder, index) => (
+              <div key={index} className="d-flex flex-row justify-content-around align-items-center list-group-item border border-dark my-2">
+                <Link to={`/folder/${folder.id}`} className="btn">
+                  {folder.title}
+                </Link>
+                <div className="text-muted">
+                  <span>{new Date(folder.created_at).toLocaleDateString()}</span>
+                </div>
+              </div>
+            )) : (
+              <div className="vw-100 vh-50 d-flex align-items-center justify-content-center">
+                <h4>No projects yet.</h4>
+              </div>
+            )}
           </div>
-
           <div className="mt-3">
-            <button onClick={() => setShowModal(true)}  className="btn custom-button ms-2">New Folder</button>
+            <button onClick={() => setShowModal(true)} className="btn custom-button ms-2">New Folder</button>
           </div>
         </main>
       </div>
 
-      <NewFolder show={showModal} handleClose={() => setShowModal(false)} parentId={parentId} />
+      <NewFolder show={showModal} handleClose={() => setShowModal(false)} parentId={null} onFolderAdded={handleAddNewFolder} />
     </>
   );
 };

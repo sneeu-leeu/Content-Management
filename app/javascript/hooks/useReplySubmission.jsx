@@ -23,9 +23,9 @@ const useReplySubmission = (folderId, uploadId) => {
         },
         body: JSON.stringify({ body }),
       });
-      // Clear the form and refresh comments or handle the state update as needed
+      // TODO: Clear the form and refresh comments or handle the state update as needed
       setReplyBodyState(prev => ({ ...prev, [commentId]: '' }));
-      toggleReplyForm(commentId); // Optionally hide the form on successful submission
+      toggleReplyForm(commentId);
     } catch (error) {
       console.error('Failed to submit reply:', error);
     }
