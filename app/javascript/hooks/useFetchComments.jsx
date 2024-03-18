@@ -2,39 +2,28 @@ import { useState, useEffect } from 'react';
 
 const useFetchComments = (folderId, uploadId) => {
   const [comments, setComments] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const fetchComments = async () => {
-      try {
-        setLoading(true);
-        const response = await fetch(`/api/v1/folders/${folderId}/uploads/${uploadId}/comments`, {
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const data = await response.json();
-        setComments(data);
-      } catch (error) {
-        console.error("Failed to fetch comments:", error);
-        setError(error.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (folderId && uploadId) {
-      fetchComments();
-    }
+    reloadComments();
   }, [folderId, uploadId]);
 
-  return { comments, loading, error };
+  const reloadComments = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch(`/api/v1/folders/${folderId}/uploads/${uploadId}/comments`);
+      if (!response.ok) throw new Error('Failed to load comments');
+      const data = await response.json();
+      setComments(data);
+      setLoading(false);
+    } catch (error) {
+      setError(error.message);
+      setLoading(false);
+    }
+  };
+
+  return { comments, loading, error, reloadComments };
 };
 
 export default useFetchComments;

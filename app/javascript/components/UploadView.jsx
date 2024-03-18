@@ -14,12 +14,12 @@ const UploadView = () => {
 
   const videoRef = useRef(null);
 
-  const softDeleteComment = useSoftDeleteComment(); 
   const { uploadDetails, loading: uploadLoading, error: uploadError } = useFetchUploadDetails(uploadId, folderId);
-  const { commentBody, setCommentBody, handleCommentSubmit } = useCommentSubmission(folderId, uploadId);
-  const { comments, loading: commentsLoading, error: commentsError } = useFetchComments(folderId, uploadId);
-  const { replyBody, setReplyBody, handleReplySubmit, replyFormVisible, toggleReplyForm } = useReplySubmission(folderId, uploadId);
-  const { editCommentId, editCommentBody, handleEditChange, startEdit, cancelEdit, submitEdit } = useCommentEdit(uploadId, folderId);
+  const { comments, reloadComments, loading: commentsLoading, error: commentsError } = useFetchComments(folderId, uploadId);
+  const { handleCommentSubmit, commentBody, setCommentBody } = useCommentSubmission(folderId, uploadId, reloadComments);
+  const { replyBody, setReplyBody, handleReplySubmit, replyFormVisible, toggleReplyForm } = useReplySubmission(folderId, uploadId, reloadComments);
+  const { editCommentId, editCommentBody, handleEditChange, startEdit, cancelEdit, submitEdit } = useCommentEdit(uploadId, folderId, reloadComments);
+  const softDeleteComment = useSoftDeleteComment(folderId, uploadId, reloadComments);
 
   const seekVideo = (timeInSeconds) => {
     if (videoRef.current) {
