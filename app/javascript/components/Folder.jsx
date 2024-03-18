@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import NewFolder from "./NewFolder";
 import UploadModal from './UploadModal';
+import Breadcrumb from './Breadcrumb';
 
 const Folder = () => {
     const params = useParams();
@@ -11,6 +12,7 @@ const Folder = () => {
     const parentId = params.id; 
     const [folderData, setFolderData] = useState({ folder: { title: '' }, sub_folders: [] });
     const [uploads, setUploads] = useState([]);
+
 
     useEffect(() => {
         fetchFolderDetails();
@@ -46,7 +48,12 @@ const Folder = () => {
 
     return (
         <>
-            <main className="container">
+            <Breadcrumb pathSegments={[
+                { name: 'Home', path: '/' },
+                    ...folderData.ancestors?.map(ancestor => ({ name: ancestor.title, path: `/folder/${ancestor.id}` })) || [],
+                { name: folderData.folder.title, path: `/folder/${params.id}` },
+            ]} />
+            <main className="container mt-4">
                 <div><h2>Folder: {folderData.folder.title}</h2></div>
                 <div className="row">
                     {folderData.sub_folders.map((subFolder, index) => (
