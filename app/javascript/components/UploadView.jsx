@@ -30,6 +30,8 @@ const UploadView = () => {
     }
   };
 
+  
+
   if (uploadLoading || commentsLoading) return <div>Loading...</div>;
   if (uploadError || commentsError) return <div>Error: {uploadError || commentsError}</div>;
   if (!uploadDetails || !uploadDetails.file || !uploadDetails.file.url) return <div>File details are missing.</div>;
@@ -43,6 +45,11 @@ const UploadView = () => {
       <img src={uploadDetails.file.url} alt={uploadDetails.title || 'Uploaded file'} className="img-fluid mb-3" />
     );
   };
+
+  const handleDelete = (commentId) => {
+    softDeleteComment(commentId).then(reloadComments);
+  };
+
 
   const renderCommentForm = () => (
     <div className="comment-form mt-4">
@@ -104,7 +111,8 @@ const UploadView = () => {
           <div>{commentContent}</div>
           <button onClick={() => startEdit(comment.id, comment.body)} className="btn btn-link">Edit</button>
           <button onClick={() => toggleReplyForm(comment.id)} className="btn btn-link">Reply</button>
-          <button onClick={() => softDeleteComment(folderId, uploadId, comment.id)} className="btn btn-link">Delete</button>
+          <button onClick={() => handleDelete(comment.id)} className="btn btn-link">Delete</button>
+          {/* <button onClick={() => softDeleteComment(comment.id)} className="btn btn-link">Delete</button> */}
           {replyFormVisible[comment.id] && renderReply(comment.id)}
           {comment.replies && comment.replies.map(renderReply)}
         </>

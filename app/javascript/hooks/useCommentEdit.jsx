@@ -19,7 +19,8 @@ const useCommentEdit = (uploadId, folderId, reloadComments) => {
   };
 
   const submitEdit = async (e, commentId) => {
-    e.preventDefault(); // Prevent the default form submit action
+    e.preventDefault();
+    console.log('commnetId', commentId)
     try {
       const response = await fetch(`/api/v1/folders/${folderId}/uploads/${uploadId}/comments/${commentId}`, {
         method: 'PATCH',
