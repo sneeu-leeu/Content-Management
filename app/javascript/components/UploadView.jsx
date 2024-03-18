@@ -18,8 +18,8 @@ const UploadView = () => {
   const { comments, reloadComments, loading: commentsLoading, error: commentsError } = useFetchComments(folderId, uploadId);
   const { handleCommentSubmit, commentBody, setCommentBody } = useCommentSubmission(folderId, uploadId, reloadComments);
   const { replyBody, setReplyBody, handleReplySubmit, replyFormVisible, toggleReplyForm } = useReplySubmission(folderId, uploadId, reloadComments);
-  const { editCommentId, editCommentBody, handleEditChange, startEdit, cancelEdit, submitEdit } = useCommentEdit(uploadId, folderId, reloadComments);
   const softDeleteComment = useSoftDeleteComment(folderId, uploadId, reloadComments);
+  const { editCommentId, editCommentBody, handleEditChange, startEdit, cancelEdit, submitEdit } = useCommentEdit(uploadId, folderId, reloadComments);
 
   const seekVideo = (timeInSeconds) => {
     if (videoRef.current) {
@@ -85,6 +85,7 @@ const UploadView = () => {
     </div>
   );
 
+ 
   const renderComment = (comment) => {
     if (editCommentId === comment.id) {
       return renderEditCommentForm(comment);
@@ -105,20 +106,30 @@ const UploadView = () => {
         }
         return part;
       });
-  
       return (
         <>
-          <div>{commentContent}</div>
+          <div>{comment.body}</div>
           <button onClick={() => startEdit(comment.id, comment.body)} className="btn btn-link">Edit</button>
-          <button onClick={() => toggleReplyForm(comment.id)} className="btn btn-link">Reply</button>
           <button onClick={() => handleDelete(comment.id)} className="btn btn-link">Delete</button>
-          {/* <button onClick={() => softDeleteComment(comment.id)} className="btn btn-link">Delete</button> */}
-          {replyFormVisible[comment.id] && renderReply(comment.id)}
           {comment.replies && comment.replies.map(renderReply)}
+          <button onClick={() => toggleReplyForm(comment.id)} className="btn btn-link">Reply</button>
+          {
+            replyFormVisible[comment.id] && (
+              <form onSubmit={(e) => handleReplySubmit(comment.id, e)}>
+                <textarea 
+                  value={replyBody} 
+                  onChange={(e) => setReplyBody(e.target.value)} 
+                  required
+                ></textarea>
+                <button type="submit" className="btn btn-link mt-2">Submit</button>
+              </form>
+            )
+          }
         </>
       );
     }
   };
+  
   const renderEditCommentForm = (comment) => (
     <form onSubmit={(e) => submitEdit(e, comment.id)}>
       <textarea

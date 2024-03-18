@@ -22,10 +22,15 @@ const useReplySubmission = (folderId, uploadId, reloadComments) => {
   };
 
   const toggleReplyForm = (commentId) => {
-    setReplyFormVisible(prevState => ({
-      ...prevState,
-      [commentId]: !prevState[commentId]
-    }));
+  setReplyFormVisible(currentState => {
+    const newState = { ...currentState };
+    const currentStateOfForm = newState[commentId];
+    // Reset all to false
+    Object.keys(newState).forEach(key => newState[key] = false);
+    // Toggle the current form
+    newState[commentId] = !currentStateOfForm;
+    return newState;
+  });
   };
 
   return { replyBody, setReplyBody, handleReplySubmit, replyFormVisible, toggleReplyForm };
