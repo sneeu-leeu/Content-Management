@@ -1,6 +1,5 @@
 Rails.application.routes.draw do
   root "home#index"
-  # devise_for :users, controllers: { omniauth_callbacks: 'users/omniauth_callbacks' }
   namespace :api do
     namespace :v1 do
       resources :folders, only: [:index, :create, :show, :destroy] do
