@@ -5,7 +5,7 @@ import useCommentSubmission from '../hooks/useCommentSubmission';
 import useFetchComments from '../hooks/useFetchComments';
 import useReplySubmission from '../hooks/useReplySubmission';
 import useCommentEdit from '../hooks/useCommentEdit';
-import useSoftDeleteComment from '../hooks/useSoftDeleteComment'; 
+import useSoftDeleteComment from '../hooks/useSoftDeleteComment';
 
 const UploadView = () => {
   const { uploadId } = useParams();
@@ -21,21 +21,37 @@ const UploadView = () => {
   const softDeleteComment = useSoftDeleteComment(folderId, uploadId, reloadComments);
   const { editCommentId, editCommentBody, handleEditChange, startEdit, cancelEdit, submitEdit } = useCommentEdit(uploadId, folderId, reloadComments);
 
-  const seekVideo = (timeInSeconds) => {
+  const seekVideo = (timeInSeconds, endTimeInSeconds = null) => {
     if (videoRef.current) {
       videoRef.current.currentTime = timeInSeconds;
-      if (videoRef.current.paused) {
-        videoRef.current.play();
+      videoRef.current.play();
+
+      if (endTimeInSeconds) {
+        const handleTimeUpdate = () => {
+          if (videoRef.current.currentTime >= endTimeInSeconds) {
+            videoRef.current.pause();
+            videoRef.current.removeEventListener('timeupdate', handleTimeUpdate);
+          }
+        };
+        videoRef.current.addEventListener('timeupdate', handleTimeUpdate);
       }
     }
   };
 
-  
+  const convertToSeconds = (timeString) => {
+    const parts = timeString.split(":").map(Number);
+    let seconds = 0;
+    if (parts.length === 3) {
+      seconds += parts[0] * 3600 + parts[1] * 60 + parts[2];
+    } else if (parts.length === 2) {
+      seconds += parts[0] * 60 + parts[1];
+    }
+    return seconds;
+  };
 
   if (uploadLoading || commentsLoading) return <div>Loading...</div>;
   if (uploadError || commentsError) return <div>Error: {uploadError || commentsError}</div>;
   if (!uploadDetails || !uploadDetails.file || !uploadDetails.file.url) return <div>File details are missing.</div>;
-
 
   const renderMedia = () => {
     const isVideo = uploadDetails.file.content_type && uploadDetails.file.content_type.startsWith('video');
@@ -49,7 +65,6 @@ const UploadView = () => {
   const handleDelete = (commentId) => {
     softDeleteComment(commentId).then(reloadComments);
   };
-
 
   const renderCommentForm = () => (
     <div className="comment-form mt-4">
@@ -70,72 +85,65 @@ const UploadView = () => {
     </div>
   );
 
-  const renderComments = () => (
-    <div className="comments-section">
-      <h5>Comments</h5>
-      {comments.length > 0 ? (
-        comments.map(comment => (
-          <div key={comment.id} className="border p-3 mb-2">
-            {renderComment(comment)}
-          </div>
-        ))
-      ) : (
-        <p>No comments yet.</p>
-      )}
-    </div>
+  const renderReplyForm = (commentId) => (
+    <form onSubmit={(e) => {
+      e.preventDefault();
+      handleReplySubmit(commentId, e);
+    }}>
+      <textarea
+        className="form-control mt-2"
+        value={replyBody[commentId] || ''}
+        onChange={(e) => setReplyBody({ ...replyBody, [commentId]: e.target.value })}
+        required
+      ></textarea>
+      <button type="submit" className="btn btn-link mt-2">Submit</button>
+    </form>
   );
 
- 
+
   const renderComment = (comment) => {
     if (editCommentId === comment.id) {
       return renderEditCommentForm(comment);
     } else {
-      const timestampRegex = /(\d{1,2}:\d{2})/g;
-      const commentContent = comment.body.split(timestampRegex).map((part, index) => {
-        if (part.match(timestampRegex)) {
-          const [minutes, seconds] = part.split(":").map(Number);
-          const timeInSeconds = minutes * 60 + seconds;
-          return (
+      const timeRegex = /(\d{1,2}:\d{2}(?::\d{2})?)(-(\d{1,2}:\d{2}(?::\d{2})?))?/g;
+      const commentContent = comment.body.split(timeRegex).reduce((acc, part, index, parts) => {
+        if (index % 4 === 0) {
+          acc.push(part);
+        } else if (index % 4 === 1) {
+          const startTime = part;
+          const endTime = parts[index + 2];
+          const startInSeconds = convertToSeconds(startTime);
+          const endInSeconds = endTime ? convertToSeconds(endTime) : null;
+          acc.push(
             <a href="#" key={index} onClick={(e) => {
               e.preventDefault();
-              seekVideo(timeInSeconds);
+              seekVideo(startInSeconds, endInSeconds);
             }} style={{ textDecoration: 'underline', cursor: 'pointer' }}>
-              {part}
+              {startTime + (endTime ? `-${endTime}` : '')}
             </a>
           );
         }
-        return part;
-      });
+        return acc;
+      }, []);
       return (
         <>
-          <div>{comment.body}</div>
+          <div>{commentContent}</div>
           <button onClick={() => startEdit(comment.id, comment.body)} className="btn btn-link">Edit</button>
           <button onClick={() => handleDelete(comment.id)} className="btn btn-link">Delete</button>
           {comment.replies && comment.replies.map(renderReply)}
           <button onClick={() => toggleReplyForm(comment.id)} className="btn btn-link">Reply</button>
-          {
-            replyFormVisible[comment.id] && (
-              <form onSubmit={(e) => handleReplySubmit(comment.id, e)}>
-                <textarea 
-                  value={replyBody} 
-                  onChange={(e) => setReplyBody(e.target.value)} 
-                  required
-                ></textarea>
-                <button type="submit" className="btn btn-link mt-2">Submit</button>
-              </form>
-            )
-          }
+          {replyFormVisible[comment.id] && renderReplyForm(comment.id)}
         </>
       );
     }
   };
-  
+
   const renderEditCommentForm = (comment) => (
     <form onSubmit={(e) => submitEdit(e, comment.id)}>
       <textarea
         className="form-control"
         value={editCommentBody}
-        onChange={(e) => handleEditChange(e)} 
+        onChange={(e) => handleEditChange(e)}
         required
       ></textarea>
       <div className="mt-2">
@@ -148,6 +156,21 @@ const UploadView = () => {
   const renderReply = (reply) => (
     <div key={reply.id} className="border mt-2 p-2" style={{ marginLeft: '20px', background: '#f8f9fa' }}>
       <p>{reply.body}</p>
+    </div>
+  );
+
+  const renderComments = () => (
+    <div className="comments-section">
+      <h5>Comments</h5>
+      {comments.length > 0 ? (
+        comments.map(comment => (
+          <div key={comment.id} className="border p-3 mb-2">
+            {renderComment(comment)}
+          </div>
+        ))
+      ) : (
+        <p>No comments yet.</p>
+      )}
     </div>
   );
 

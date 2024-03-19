@@ -6,14 +6,15 @@ const useReplySubmission = (folderId, uploadId, reloadComments) => {
 
   const handleReplySubmit = async (commentId, e) => {
     e.preventDefault();
+    const body = replyBody[commentId] || '';
     try {
       const response = await fetch(`/api/v1/folders/${folderId}/uploads/${uploadId}/comments/${commentId}/replies`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ body: replyBody }),
+        body: JSON.stringify({ body }),
       });
       if (!response.ok) throw new Error('Failed to submit reply');
-      setReplyBody('');
+      setReplyBody(prev => ({ ...prev, [commentId]: '' }));
       setReplyFormVisible({});
       reloadComments();
     } catch (error) {
@@ -22,15 +23,11 @@ const useReplySubmission = (folderId, uploadId, reloadComments) => {
   };
 
   const toggleReplyForm = (commentId) => {
-  setReplyFormVisible(currentState => {
-    const newState = { ...currentState };
-    const currentStateOfForm = newState[commentId];
-    // Reset all to false
-    Object.keys(newState).forEach(key => newState[key] = false);
-    // Toggle the current form
-    newState[commentId] = !currentStateOfForm;
-    return newState;
-  });
+    setReplyFormVisible(currentState => {
+      const newState = { ...currentState };
+      newState[commentId] = !newState[commentId];
+      return newState;
+    });
   };
 
   return { replyBody, setReplyBody, handleReplySubmit, replyFormVisible, toggleReplyForm };
