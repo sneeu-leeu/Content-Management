@@ -1,6 +1,7 @@
 Rails.application.routes.draw do
-  devise_for :users
+
   root "home#index"
+  get "home/index"
   namespace :api do
     namespace :v1 do
       resources :folders, only: [:index, :create, :show, :destroy] do
@@ -15,6 +16,7 @@ Rails.application.routes.draw do
       end
     end
   end
+  devise_for :users
 
   
   get "up" => "rails/health#show", as: :rails_health_check
