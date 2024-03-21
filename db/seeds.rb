@@ -8,8 +8,8 @@
 #     MovieGenre.find_or_create_by!(name: genre_name)
 #   end
 
-9.times do |i|
-    Folder.create(
-      title: "Secret Project #{i + 1}"
-    )
-end
+# 9.times do |i|
+#     Folder.create(
+#       title: "Secret Project #{i + 1}"
+#     )
+# end

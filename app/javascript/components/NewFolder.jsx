@@ -36,9 +36,6 @@ const NewFolder = ({ show, handleClose, parentId, onFolderAdded }) => {
         <div className="modal-content">
           <div className="modal-header">
             <h5 className="modal-title">New Folder</h5>
-            <button type="button" className="close" data-dismiss="modal" aria-label="Close" onClick={handleClose}>
-              <span aria-hidden="true">&times;</span>
-            </button>
           </div>
           <form onSubmit={handleSubmit}>
             <div className="modal-body">

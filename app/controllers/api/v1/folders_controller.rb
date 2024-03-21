@@ -28,7 +28,7 @@ class Api::V1::FoldersController < ApplicationController
     private
 
     def folder_params
-        params.require(:folder).permit(:title, :parent_id)
+        params.require(:folder).permit(:title, :parent_id, :user_id)
     end
 
     def set_folder

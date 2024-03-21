@@ -7,4 +7,5 @@ class User < ApplicationRecord
   has_many :uploads
   has_many :comments
   has_many :replies
+  has_many :folders
 end

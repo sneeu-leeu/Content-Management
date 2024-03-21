@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_03_20_122022) do
+ActiveRecord::Schema[7.1].define(version: 2024_03_21_111306) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -67,7 +67,9 @@ ActiveRecord::Schema[7.1].define(version: 2024_03_20_122022) do
     t.string "timestamp"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
     t.index ["parent_id"], name: "index_folders_on_parent_id"
+    t.index ["user_id"], name: "index_folders_on_user_id"
   end
 
   create_table "replies", force: :cascade do |t|
@@ -109,6 +111,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_03_20_122022) do
   add_foreign_key "comments", "uploads"
   add_foreign_key "comments", "users"
   add_foreign_key "folders", "folders", column: "parent_id"
+  add_foreign_key "folders", "users"
   add_foreign_key "replies", "comments"
   add_foreign_key "replies", "users"
   add_foreign_key "uploads", "users"

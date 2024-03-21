@@ -7,11 +7,9 @@ class Api::V1::UploadsController < ApplicationController
   end
 
   def create
-    Rails.logger.debug "Received params: #{params.inspect}"
-    upload = Upload.new(upload_params)
+    upload = current_user.uploads.new(upload_params)
     upload.file.attach(params[:upload][:file]) if params[:upload][:file].present?
-
-    
+  
     if upload.save
       render json: upload, status: :created
     else
@@ -25,6 +23,9 @@ class Api::V1::UploadsController < ApplicationController
       render json: {
         id: upload.id,
         title: upload.title,
+        user: {
+          id: upload.user.id,
+        },
         file: {
           url: rails_blob_url(upload.file, only_path: true),
           content_type: upload.file.blob.content_type
