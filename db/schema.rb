@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_03_21_131655) do
+ActiveRecord::Schema[7.1].define(version: 2024_03_21_155619) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -77,6 +77,8 @@ ActiveRecord::Schema[7.1].define(version: 2024_03_21_131655) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
+    t.bigint "comment_id", null: false
+    t.index ["comment_id"], name: "index_replies_on_comment_id"
     t.index ["user_id"], name: "index_replies_on_user_id"
   end
 
@@ -111,6 +113,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_03_21_131655) do
   add_foreign_key "comments", "users"
   add_foreign_key "folders", "folders", column: "parent_id"
   add_foreign_key "folders", "users"
+  add_foreign_key "replies", "comments"
   add_foreign_key "replies", "users"
   add_foreign_key "uploads", "users"
 end

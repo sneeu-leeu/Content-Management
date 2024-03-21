@@ -93,7 +93,7 @@ const Folder = () => {
                                 {upload.title}
                             </Link>
                             <div className="text-muted">
-                                <span>{new Date(upload.created_at).toLocaleDateString()}</span>
+                                <span>{new Date(upload.created).toLocaleDateString()}</span>
                             </div>
                             <button onClick={() => handleDeleteUpload(upload.id)} className="btn ms-2">Delete</button>
                         </div>
