@@ -17,6 +17,9 @@ Rails.application.routes.draw do
     end
   end
   devise_for :users
+  
+  get '*path', to: 'home#index', constraints: ->(request) { !request.xhr? && request.format.html? }
+
 
   
   get "up" => "rails/health#show", as: :rails_health_check
