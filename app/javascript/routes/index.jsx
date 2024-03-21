@@ -14,7 +14,7 @@ const AppRoutes = () => (
         <Routes>
           <Route path="/" element={<Folders />} />
           <Route path="/folder/:id" element={<Folder />} />
-          <Route path="/folder/:id/uploads/:uploadId" element={<UploadView />} />
+          <Route path="/folder/:folderId/uploads/:uploadId" element={<UploadView />} />
         </Routes>
       </div>
       <Footer />

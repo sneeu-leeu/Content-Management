@@ -8,9 +8,8 @@ import useCommentEdit from '../hooks/useCommentEdit';
 import useSoftDeleteComment from '../hooks/useSoftDeleteComment';
 
 const UploadView = () => {
-  const { uploadId } = useParams();
   const location = useLocation();
-  const folderId = location.state?.folderId;
+  const { folderId, uploadId } = useParams();
 
   const videoRef = useRef(null);
 
