@@ -7,18 +7,18 @@ class Api::V1::FoldersController < ApplicationController
     end
 
     def create
-        folder = Folder.new(folder_params)
+        folder = current_user.folders.new(folder_params)
         if folder.save
-            render json: folder, status: :created
+          render json: folder, status: :created
         else
-            render json: folder.errors, status: :unprocessable_entity
+          render json: folder.errors, status: :unprocessable_entity
         end
     end
 
     def show
-        render json: { folder: @folder, sub_folders: @folder.sub_folders }
+        render json: { folder: @folder, sub_folders: @folder.sub_folders, user: @folder.user }
     end
-
+    
     def destroy
         parent_folder = @folder.parent
         @folder&.destroy

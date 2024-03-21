@@ -2,28 +2,27 @@ class Api::V1::RepliesController < ApplicationController
   before_action :set_comment
 
   def index
-    @replies = @comment.replies.order(created_at: :desc)
-    render json: @replies
-  end
+    @replies = @comment.replies.order(created_at: :desc).includes(:user)
+    render json: @replies.as_json(include: :user)
+  end  
 
   def create
-    @reply = @comment.replies.new(reply_params)
+    @reply = @comment.replies.new(reply_params.merge(user: current_user))
     if @reply.save
-      render json: @reply, status: :created
+      render json: @reply.as_json(include: :user), status: :created
     else
       render json: @reply.errors, status: :unprocessable_entity
     end
   end
   
   def update
-    @reply = @comment.replies.find(params[:id])
     if @reply.update(reply_params)
-      render json: @reply
+      render json: @reply.as_json(include: :user)
     else
       render json: @reply.errors, status: :unprocessable_entity
     end
   end
-
+  
   private
 
   def set_comment
