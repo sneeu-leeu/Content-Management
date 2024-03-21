@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { useParams, useLocation } from 'react-router-dom';
 import useFetchUploadDetails from '../hooks/useFetchUploadDetails';
 import useCommentSubmission from '../hooks/useCommentSubmission';
@@ -20,6 +20,12 @@ const UploadView = () => {
   const { replyBody, setReplyBody, handleReplySubmit, replyFormVisible, toggleReplyForm } = useReplySubmission(folderId, uploadId, reloadComments);
   const softDeleteComment = useSoftDeleteComment(folderId, uploadId, reloadComments);
   const { editCommentId, editCommentBody, handleEditChange, startEdit, cancelEdit, submitEdit } = useCommentEdit(uploadId, folderId, reloadComments);
+
+  const [isLooping, setIsLooping] = useState(false);
+
+  const toggleLooping = () => {
+    setIsLooping(!isLooping);
+  };
 
   const seekVideo = (timeInSeconds, endTimeInSeconds = null) => {
     if (videoRef.current) {
@@ -56,7 +62,12 @@ const UploadView = () => {
   const renderMedia = () => {
     const isVideo = uploadDetails.file.content_type && uploadDetails.file.content_type.startsWith('video');
     return isVideo ? (
-      <video ref={videoRef} controls src={uploadDetails.file.url} className="img-fluid mb-3" />
+      <>
+        <video ref={videoRef} controls loop={isLooping} src={uploadDetails.file.url} className="img-fluid mb-3" />
+        <button onClick={toggleLooping} className="btn btn-secondary mb-2">
+          {isLooping ? 'Stop Looping' : 'Loop Video'}
+        </button>
+      </>
     ) : (
       <img src={uploadDetails.file.url} alt={uploadDetails.title || 'Uploaded file'} className="img-fluid mb-3" />
     );
