@@ -46,6 +46,23 @@ const Folder = () => {
         setUploads(prevUploads => [...prevUploads, newUpload]);
     };
 
+    const handleDeleteUpload = async (uploadId) => {
+        try {
+            const response = await fetch(`/api/v1/folders/${params.id}/uploads/${uploadId}`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ upload: { deleted: true } }),
+            });
+            if (!response.ok) throw new Error('Failed to delete upload.');
+    
+            setUploads(uploads.filter(upload => upload.id !== uploadId));
+        } catch (error) {
+            console.error("Error:", error);
+        }
+    };
+
     return (
         <>
             <Breadcrumb pathSegments={[
@@ -74,6 +91,7 @@ const Folder = () => {
                             <div className="text-muted">
                                 <span>{new Date(upload.created_at).toLocaleDateString()}</span>
                             </div>
+                            <button onClick={() => handleDeleteUpload(upload.id)} className="btn btn-danger ms-2">Delete</button>
                         </div>
                     ))}
                 </div>

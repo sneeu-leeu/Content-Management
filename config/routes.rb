@@ -5,7 +5,7 @@ Rails.application.routes.draw do
   namespace :api do
     namespace :v1 do
       resources :folders, only: [:index, :create, :show, :destroy] do
-        resources :uploads, only: [:index, :create, :show, :destroy] do 
+        resources :uploads, only: [:index, :create, :show, :destroy, :update] do 
           resources :comments, only: [:index, :create, :update] do
             member do
               patch :soft_delete
